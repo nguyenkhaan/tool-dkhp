@@ -20,9 +20,6 @@ const Scheduled = () => {
       tkb: state.tkbData,
       hydrated: state.hydrate,
     })))
-    useEffect(() => {
-      console.log(hydrated)
-    } , [hydrated])
 
    return (
       <div className="w-full h-screen overflow-x-scroll pr-8 flex flex-col pt-8 pb-16">
