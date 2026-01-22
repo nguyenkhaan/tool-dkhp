@@ -25,7 +25,7 @@ function isValid(course : TkbDTO , data : any)
             const tietHoc = String(value.Tiet) 
             const tietHocDaChon = String(course.Tiet) 
             for (let i = 0; i < tietHoc.length; ++i) {
-                for (let j = 0; j < tietHocDaChon.length; ++j) if (tietHoc[i] == tietHocDaChon[j]) {
+                for (let j = 0; j < tietHocDaChon.length; ++j) if (tietHoc[i] != '*' && tietHocDaChon[j] != '*' && tietHoc[i] == tietHocDaChon[j]) {
                     maTrung.push(course.MaLop) 
                     break 
                 }
