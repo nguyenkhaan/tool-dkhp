@@ -36,3 +36,4 @@ export function CourseRegistrationTable() {
     </div>
   )
 }
+export default CourseRegistrationTable
