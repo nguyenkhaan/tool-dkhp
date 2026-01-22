@@ -3,7 +3,7 @@ import TkbDTO from '@/types/tkbDTO'
 import mappingData from '@/helpers/xlsxToJson';
 import * as XLSX from "xlsx";
 import { persist, createJSONStorage } from "zustand/middleware"
-import { isValid as isValidChoose } from '@/helpers/validateChoosing';
+import { chonTay, isValid as isValidChoose } from '@/helpers/validateChoosing';
 import { selectedCourseType, selectedCourseResponseType } from '@/types/tkbDTO';
 
 //Hook type 
@@ -11,164 +11,191 @@ export type TkbType = {
    tkbData: Map<string, TkbDTO>,
    setTkb: (file: File) => Promise<number>, //1: OK, 2: File khong dung dinh dang  
    initTkb: (data: Map<string, TkbDTO>) => void,
-   initCourses: (data: selectedCourseType) => void, 
+   initCourses: (data: selectedCourseType) => void,
    choose: (maLop: string) => any,
    unchoose: (maLop: string) => any,
    courses: selectedCourseType, //Su dung selectedCourse.ds de lay cac mon da pick 
-   hydrate: boolean, 
-   setHydrate: (v : boolean) => void, 
-   activeTab: number, 
-   setActiveTab: (tabID : number) => void 
+   hydrate: boolean,
+   setHydrate: (v: boolean) => void,
+   activeTab: number,
+   setActiveTab: (tabID: number) => void,
+   chonTay: boolean,  //Ham dung de chon tay 
+   coursesChonTay: selectedCourseType, //Courses chon tay 
+   setChonTay: (value : boolean) => void
 }
 
 
 //React Hook 
 const useTkb = create<TkbType>()(
-  persist
-  (
-    (set, get) => ({
-    tkbData: new Map(),
-     courses: {
-        ds: new Map(),
-        tc: 0 //Ban dau chua chon bat cu mon gi 
-     },
-     hydrate: false, 
-     setHydrate: (v : boolean) => {
-      set({
-        hydrate : v 
-      })
-     }, 
-     activeTab: 1, 
-     setActiveTab: (tabID : number) => {
-      set({activeTab : tabID})
-     }, 
-     initTkb: (data) => {
-        set({
-           tkbData: data
-        })
-     },
-     initCourses: (data) => {
-        set({
-            courses : data 
-        })
-     }, 
-     setTkb: async (file: File) => {
-        return new Promise((resolve, reject) => {
-           try {
-              const reader = new FileReader();
-              const rABS = !!reader.readAsBinaryString;
-              reader.onerror = () => reject(new Error("FileReader error"));
-              reader.onload = (e) => {
-                 const bstr = e?.target?.result;
-                 const wb = XLSX.read(bstr, {
-                    type: rABS ? "binary" : "array",
-                 });
-                 const wsLyThuyet = wb.Sheets[wb.SheetNames[0]];
-                 const wsThucHanh = wb.Sheets[wb.SheetNames[1]];
-                 const dataLyThuyet = XLSX.utils.sheet_to_json<any[][]>(
-                    wsLyThuyet,
-                    { header: 1 },
-                 );
-                 const dataThucHanh = XLSX.utils.sheet_to_json<any[][]>(
-                    wsThucHanh,
-                    { header: 1 },
-                 );
-                 const dataInArray = [...dataLyThuyet, ...dataThucHanh].filter(
-                    (row) => typeof row[0] === "number", // những row có cột 0 là STT (STT là number) thì mới là data ta cần
-                 );
-                 if (dataInArray && dataInArray.length) {
-                    const data = mappingData(dataInArray)
-                    set({ tkbData: data })
-                    resolve(1)
-                 }
-                 else resolve(2)
-              };
-              if (rABS) reader.readAsBinaryString(file)
-              else reader.readAsArrayBuffer(file)
-           }
-           catch (err) {
-              reject(err)
-           }
-        })
-     },
-     choose: (maLop: string) => {
-        const tkbData = get().tkbData
-        const courses = get().courses 
-        const data = tkbData.get(maLop)
-        if (!data) return
+   persist
+      (
+         (set, get) => ({
+            tkbData: new Map(),
+            courses: {
+               ds: new Map(),
+               tc: 0 //Ban dau chua chon bat cu mon gi 
+            },
+            setChonTay: (value : boolean) => {
+               set({
+                  chonTay: value //Dao nguoc lai chon Tay 
+               })
+            },
+            coursesChonTay: {
+               ds: new Map(),
+               tc: 0
+            },
+            chonTay: false, //Quyet dinh xem thoi khoa bieu co duoc chon tay hay khong 
+            hydrate: false,
+            setHydrate: (v: boolean) => {
+               set({
+                  hydrate: v
+               })
+            },
+            activeTab: 1,
+            setActiveTab: (tabID: number) => {
+               set({ activeTab: tabID })
+            },
+            initTkb: (data) => {
+               set({
+                  tkbData: data
+               })
+            },
+            initCourses: (data) => {
+               set({
+                  courses: data
+               })
+            },
 
-        const response = isValidChoose(data , courses)
-        if (!response.success) return response
+            setTkb: async (file: File) => {
+               return new Promise((resolve, reject) => {
+                  try {
+                     const reader = new FileReader();
+                     const rABS = !!reader.readAsBinaryString;
+                     reader.onerror = () => reject(new Error("FileReader error"));
+                     reader.onload = (e) => {
+                        const bstr = e?.target?.result;
+                        const wb = XLSX.read(bstr, {
+                           type: rABS ? "binary" : "array",
+                        });
+                        const wsLyThuyet = wb.Sheets[wb.SheetNames[0]];
+                        const wsThucHanh = wb.Sheets[wb.SheetNames[1]];
+                        const dataLyThuyet = XLSX.utils.sheet_to_json<any[][]>(
+                           wsLyThuyet,
+                           { header: 1 },
+                        );
+                        const dataThucHanh = XLSX.utils.sheet_to_json<any[][]>(
+                           wsThucHanh,
+                           { header: 1 },
+                        );
+                        const dataInArray = [...dataLyThuyet, ...dataThucHanh].filter(
+                           (row) => typeof row[0] === "number", // những row có cột 0 là STT (STT là number) thì mới là data ta cần
+                        );
+                        if (dataInArray && dataInArray.length) {
+                           const data = mappingData(dataInArray)
+                           set({ tkbData: data })
+                           resolve(1)
+                        }
+                        else resolve(2)
+                     };
+                     if (rABS) reader.readAsBinaryString(file)
+                     else reader.readAsArrayBuffer(file)
+                  }
+                  catch (err) {
+                     reject(err)
+                  }
+               })
+            }, 
+            //Xu li chon mon hoc: chon tay va khong chon tay 
+            choose: (maLop: string) => {
+               const tkbData = get().tkbData
+               const courses = (get().chonTay ? get().coursesChonTay : get().courses)
+               const tinChi = courses.tc
+               const data = tkbData.get(maLop)
+               if (!data) return
 
-        set((state) => {
-           const newDs = new Map(state.courses.ds)
-           newDs.set(data.MaLop, data)
+               const response = isValidChoose(data, courses)
+               if (!response.success) return response
 
-           return {
-              courses: {
-                 ds: newDs,
-                 tc: state.courses.tc + data.SoTc,
-              },
-           }
-        })
-        //Luu du lieu len tren localStorage ? 
-        return {
-           success: true,
-           message: "Đăng ký môn thành công",
-        }
-     }, 
+               set((state) => {
 
-      unchoose: (maLop: string) => {
-        const { courses } = get()   //Ham dung de bo chon mot mon hoc 
-        if (!courses.ds.has(maLop)) return {
-          success: false, 
-          message : "Môn không có trong danh sách"
-        }
-      
-        const data = courses.ds.get(maLop)!
-        const newDs = new Map(courses.ds)
-        newDs.delete(maLop)
-        const newCourses : selectedCourseType = {
-          ds : newDs , 
-          tc : courses.tc - Number(data.SoTc) 
-        }
-        set({
-          courses: newCourses
-        })
-        //Luu du lieu len tren localStorage 
-        return {
-          success: true, 
-          message: "Đã xóa lớp"
-        }
-      }
-    }), 
-    {
-        name: 'tkb-storage', 
-        storage: createJSONStorage(() => localStorage), 
-        partialize: ((state) => ({
-          tkbData : state.tkbData instanceof Map? Array.from(state.tkbData.entries()) : state.tkbData,   //Phai dong JSON thu cong 
-          courses: {
-            ds : state.courses.ds instanceof Map? Array.from(state.courses.ds.entries()) : state.courses.ds, 
-            tc: (state.courses.tc) 
-          }
-        })), 
-        onRehydrateStorage: () => (state) => {
-          console.log('Dang hydrating')
-          console.log(state) 
-          if (!state) return 
-          state.tkbData = new Map(state.tkbData),   //No da giai JSON o ham ben ngoai roi 
-          state.courses.ds  = new Map(state.courses.ds)   //So tin chi da duoc giai nen khong can gan lai nua 
-          //Ban chat la no gan tuong ung truong lai, tuong ung khi khai bao trong partialize, sau do o ham nay no gan lai tuong ung, 
-          //Du lieu duoc JSON.parse() o buoc truoc, o buoc sau thi se chuyen doi KDL sang Map, khong lien quan gi den JSON nua 
-          
-          state.hydrate = true //Sau khi da hydrate xong du
-        }
-    }
-  )
-) 
+                  const newDs = (state.chonTay ? new Map(state.coursesChonTay.ds) : new Map(state.courses.ds))
+                  newDs.set(data.MaLop, data)
+                  if (state.chonTay) return {
+                     coursesChonTay: {
+                        ds: newDs,
+                        tc: tinChi + data.SoTc,
+                     }
+                  }
+                  return {
+                     courses: {
+                        ds: newDs,
+                        tc: tinChi + data.SoTc,
+                     },
+                  }
+               })
+               //Luu du lieu len tren localStorage ? 
+               return {
+                  success: true,
+                  message: "Đăng ký môn thành công",
+               }
+            },
+            //Bo chon mon hoc 
+            unchoose: (maLop: string) => {
+               const courses = (get().chonTay? get().coursesChonTay : get().courses)
+               if (!courses.ds.has(maLop)) return {
+                  success: false,
+                  message: "Môn không có trong danh sách"
+               }
+
+               const data = courses.ds.get(maLop)!
+               const newDs = new Map(courses.ds)
+               newDs.delete(maLop)
+               const newCourses: selectedCourseType = {
+                  ds: newDs,
+                  tc: courses.tc - Number(data.SoTc)
+               }
+               if (get().chonTay) set({
+                  coursesChonTay : newCourses
+               })
+               else set({
+                  courses: newCourses
+               })
+               //Luu du lieu len tren localStorage 
+               return {
+                  success: true,
+                  message: "Đã xóa lớp"
+               }
+            }
+         }),
+         {
+            name: 'tkb-storage',
+            storage: createJSONStorage(() => localStorage),
+            partialize: ((state) => ({
+               tkbData: state.tkbData instanceof Map ? Array.from(state.tkbData.entries()) : state.tkbData,   //Phai dong JSON thu cong 
+               courses: {
+                  ds: state.courses.ds instanceof Map ? Array.from(state.courses.ds.entries()) : state.courses.ds,
+                  tc: (state.courses.tc)
+               },
+               coursesChontay: {
+                  ds: state.coursesChonTay instanceof Map ? Array.from(state.coursesChonTay.ds.entries()) : state.coursesChonTay.ds,
+                  tc: (state.coursesChonTay.tc)   //Luu vao ben trong local Storage 
+               }
+            })),
+            onRehydrateStorage: () => (state) => {
+               if (!state) return
+               state.tkbData = new Map(state.tkbData),   //No da giai JSON o ham ben ngoai roi 
+                  state.courses.ds = new Map(state.courses.ds), //So tin chi da duoc giai nen khong can gan lai nua 
+                  //Ban chat la no gan tuong ung truong lai, tuong ung khi khai bao trong partialize, sau do o ham nay no gan lai tuong ung, 
+                  //Du lieu duoc JSON.parse() o buoc truoc, o buoc sau thi se chuyen doi KDL sang Map, khong lien quan gi den JSON nua 
+                  state.coursesChonTay.ds = new Map(state.coursesChonTay.ds),
+                  state.hydrate = true //Sau khi da hydrate xong du
+            }
+         }
+      )
+)
 
 
-export {useTkb}
+export { useTkb }
 
 /**
  * Huong su dung persis storage trong zustand 

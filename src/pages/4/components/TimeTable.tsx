@@ -17,11 +17,14 @@ const PERIODS = [
    { tiet: 10, time: "16:15 - 17:00" },
 ];
 function TimeTable() {
-   const { courses, hydrate } = useTkb(
+   
+   const { courses, chonTay , coursesChonTay , hydrate } = useTkb(
       //Dong bo du lieu
       useShallow((state) => ({
          courses: state.courses,
          hydrate: state.hydrate,
+         chonTay: state.chonTay, 
+         coursesChonTay: state.coursesChonTay 
       })),
    );
    return (
@@ -69,7 +72,8 @@ function TimeTable() {
             })}
             {/* Cac mon hoc duoc lay o day  */}
             {hydrate ? (
-               Array.from(courses.ds.values()).filter((course) => course.Thu != '*').map((course, index) => {
+               (chonTay? Array.from(coursesChonTay.ds.values()) : Array.from(courses.ds.values()))
+               .filter((course) => course.Thu != '*').map((course, index) => {
                   return <Card course={course} key={course.MaLop} />;
                })
             ) : (
@@ -77,7 +81,8 @@ function TimeTable() {
             )}
          </div>
             {
-               Array.from(courses.ds.values()).filter((course) => course.Thu == '*').map((course, index) => {
+               (chonTay? Array.from(coursesChonTay.ds.values()) : Array.from(courses.ds.values()))
+               .map((course, index) => {
                   return <div className="min-w-[1360px] h-40 border border-gray-400 my-1 rounded-md bg-white flex flex-col items-center justify-center">
                      <p className="font-semibold text-center">{course.MaLop} {course.NgonNgu}</p>
                      <p className="text-center">{course.TenMH}</p>

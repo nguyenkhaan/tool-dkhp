@@ -17,11 +17,13 @@ import toast from "react-hot-toast";
 import TinChi from "@/components/common/TinChi";
 // Giữ nguyên Row component đã tối ưu ở bước trước
 const Row = memo(({ item, isSelected, onToggle }: any) => {
+  const chonTay = useTkb((state) => state.chonTay)
   return (
     <TableRow>
       <TableCell className="text-center text-base">
         <Checkbox 
           checked={isSelected} 
+          disabled={chonTay}
           onCheckedChange={(checked) => onToggle(checked, item.MaLop)} 
         />
       </TableCell>
