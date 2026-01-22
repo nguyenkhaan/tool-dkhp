@@ -1,9 +1,8 @@
 import TkbDTO from "@/types/tkbDTO";
 import { useTkb } from "@/zus/tkb";
 //Ham dung de kiem tra tinh hop le khi pick 1 mon hoc 
-function isValid(course : TkbDTO)
+function isValid(course : TkbDTO , data : any)
 {
-    const data = useTkb((state) => state.courses) 
     const courses = data.ds 
     const tc = data.tc 
     
@@ -35,7 +34,7 @@ function isValid(course : TkbDTO)
     } 
     if (maTrung.length) return {
         success: false, 
-        message: "Mon hoc bi trung voi: " + maTrung.join(',')
+        message: "Môn học bị trùng với: " + maTrung.join(',')
     }
     //Thuc hien update lai danh dach mon hoc 
     return {

@@ -13,7 +13,7 @@ export type TkbType = {
    initTkb: (data: Map<string, TkbDTO>) => void,
    initCourses: (data: selectedCourseType) => void, 
    choose: (maLop: string) => any,
-   unchoose: (maLop: string) => boolean,
+   unchoose: (maLop: string) => any,
    courses: selectedCourseType, //Su dung selectedCourse.ds de lay cac mon da pick 
    hydrate: boolean, 
    setHydrate: (v : boolean) => void  
@@ -87,10 +87,11 @@ const useTkb = create<TkbType>()(
      },
      choose: (maLop: string) => {
         const tkbData = get().tkbData
+        const courses = get().courses 
         const data = tkbData.get(maLop)
         if (!data) return
 
-        const response = isValidChoose(data)
+        const response = isValidChoose(data , courses)
         if (!response.success) return response
 
         set((state) => {
@@ -113,7 +114,10 @@ const useTkb = create<TkbType>()(
 
       unchoose: (maLop: string) => {
         const { courses } = get()   //Ham dung de bo chon mot mon hoc 
-        if (!courses.ds.has(maLop)) return false
+        if (!courses.ds.has(maLop)) return {
+          success: false, 
+          message : "Môn không có trong danh sách"
+        }
       
         const data = courses.ds.get(maLop)!
         const newDs = new Map(courses.ds)
@@ -126,7 +130,10 @@ const useTkb = create<TkbType>()(
           courses: newCourses
         })
         //Luu du lieu len tren localStorage 
-        return true
+        return {
+          success: true, 
+          message: "Đã xóa lớp"
+        }
       }
     }), 
     {

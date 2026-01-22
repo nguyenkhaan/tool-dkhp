@@ -13,14 +13,19 @@ import { ScrollArea, ScrollBar } from "@/registry/ui/scroll-area";
 import { useTkb } from "@/zus/tkb";
 import { useShallow } from 'zustand/react/shallow'
 import { useEffect } from "react";
-
+import toast from "react-hot-toast";
 const Scheduled = () => {
-  const { tkb, hydrated } = useTkb(
+  const { tkb, courses , hydrated } = useTkb(
     useShallow((state) => ({
       tkb: state.tkbData,
       hydrated: state.hydrate,
+      courses: state.courses
     })))
-
+    const choose = useTkb((state) => state.choose) 
+    const unchoose=  useTkb((state) => state.unchoose)
+    const handleCheckBoxChange = (checked: boolean | "indeterminate") => {
+      console.log(checked) 
+    }
    return (
       <div className="w-full h-screen overflow-x-scroll pr-8 flex flex-col pt-8 pb-16">
          <h2 className="text-3xl font-bold my-5">Danh mục môn học</h2>
@@ -61,7 +66,22 @@ const Scheduled = () => {
               {hydrated ? Array.from(tkb.values()).map((item, index) => (
                 <TableRow key={index}>
                   <TableCell className="text-center text-base">
-                    <Checkbox />
+                    <Checkbox checked={courses.ds.has(item.MaLop)} 
+                      onCheckedChange={(checked) => {
+                        const toastID = toast.loading("Đang chọn lớp...")                    
+                        let response
+                        if (checked) {
+                          response = choose(item.MaLop)
+                        } else {
+                          response = unchoose(item.MaLop)
+                        }
+                      
+                        if (response.success) {
+                          toast.success(response.message, { id: toastID })
+                        } else {
+                          toast.error(response.message, { id: toastID })
+                        }
+                    }} />
                   </TableCell>
                   <TableCell className="border font-medium">{item.TenMH}</TableCell>
                   <TableCell className="border">{item.MaLop}</TableCell>

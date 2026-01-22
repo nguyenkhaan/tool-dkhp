@@ -6,7 +6,7 @@ const Card = ({ course }: { course: TkbDTO }) => {
 
    return (
       <div
-         className="absolute bg-blue-200 z-10 rounded-md flex flex-col items-center justify-center"
+         className="absolute bg-blue-200 border border-blue-300 px-2 z-10 rounded-md flex flex-col items-center justify-center"
          style={{
             left: `${left}px`, //(Thu - 2) * 200px + 160 vd: Thu 2 -> (2 - 1) * 160px
             top: `${top}px`, // 40 + (Tiet bat dau - 1) * 64
@@ -15,12 +15,12 @@ const Card = ({ course }: { course: TkbDTO }) => {
             //Vi du: Thu 4, tiet 3456
          }}
       >
-         <p className="font-semibold">MA004.O21 - VN</p>
-         <p>Cấu trúc rời rạc</p>
-         <p className="font-semibold">Hà Mạnh Linh</p>
-         <p>C109</p>
-         <p>BĐ: 2024-02-19</p>
-         <p>KT: 2024-06-08</p>
+         <p className="font-semibold text-center">{course.MaLop} {course.NgonNgu}</p>
+         <p className="text-center">{course.TenMH}</p>
+         <p className="font-semibold text-center">{course.TenGV}</p>
+         <p className="text-center">{course.PhongHoc}</p>
+         <p className="text-center">BD: {course.NBD}</p>
+         <p className="text-center">KT: {course.NKT}</p>
       </div>
    );
 };
