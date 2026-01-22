@@ -16,7 +16,9 @@ export type TkbType = {
    unchoose: (maLop: string) => any,
    courses: selectedCourseType, //Su dung selectedCourse.ds de lay cac mon da pick 
    hydrate: boolean, 
-   setHydrate: (v : boolean) => void  
+   setHydrate: (v : boolean) => void, 
+   activeTab: number, 
+   setActiveTab: (tabID : number) => void 
 }
 
 
@@ -35,6 +37,10 @@ const useTkb = create<TkbType>()(
       set({
         hydrate : v 
       })
+     }, 
+     activeTab: 1, 
+     setActiveTab: (tabID : number) => {
+      set({activeTab : tabID})
      }, 
      initTkb: (data) => {
         set({

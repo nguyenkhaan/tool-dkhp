@@ -1,12 +1,12 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import InformationButton from "../components/InformationButton";
+import InformationButton from "@/app/home/components/InformationButton";
 import { Button } from "@/registry/ui/button";
 import { useTkb as useTKB } from "@/zus/tkb";
 import toast from "react-hot-toast";
 import Tracker from "@/track/tracker";
 
-const App = () => {
+const ChonFile = () => {
    const [fileName, setFileName] = useState<string>('');
    const [isMounted, setIsMounted] = useState(false); 
    const inputRef = useRef<HTMLInputElement | null>(null);
@@ -91,4 +91,4 @@ const App = () => {
    );
 };
 
-export default App;
+export default ChonFile;

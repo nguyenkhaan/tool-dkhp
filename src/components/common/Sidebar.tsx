@@ -5,6 +5,7 @@ import { MessageCircleQuestionMark, Github } from "lucide-react";
 import { TypingAnimation } from "@/registry/ui/typing-animation";
 import { Button } from "@/registry/ui/button";
 import Link from "next/link";
+import { useTkb } from "@/zus/tkb";
 import {
    Sidebar,
    SidebarContent,
@@ -20,27 +21,30 @@ import {
 const items = [
    {
       title: "Home",
-      url: "/home/1",
+      id: 1, 
       icon: Home,
    },
    {
       title: "Đã học",
-      url: "/home/2",
+      id: 2, 
       icon: Inbox,
    },
    {
       title: "Chọn môn",
-      url: "/home/3",
+      id : 3, 
       icon: NotebookPen,
    }, 
    {
       title: "Xếp lịch",
-      url: "/home/4",
+      id : 4, 
       icon: Calendar,
    }
 ];
 
-export function AppSidebar() {
+export function AppSidebar() 
+{
+   const activeTab = useTkb((state) => state.activeTab) 
+   const setActiveTab = useTkb((state) => state.setActiveTab) 
    return (
       <Sidebar>
          <SidebarContent>
@@ -60,11 +64,13 @@ export function AppSidebar() {
                               variant={"ghost"}
                               text={"lg"}
                               asChild
+                              onClick={() => setActiveTab(item.id)}
+                              className="cursor-pointer"
                            >
-                              <Link href={item.url}>
+                              <div>
                                  <item.icon />
-                                 <span>{item.title}</span>
-                              </Link>
+                                 <span>{item.title}</span>  
+                              </div>
                            </SidebarMenuButton>
                         </SidebarMenuItem>
                      ))}
