@@ -14,7 +14,7 @@ import { ScrollArea, ScrollBar } from "@/registry/ui/scroll-area";
 import { useTkb } from "@/zus/tkb";
 import { useShallow } from 'zustand/react/shallow'
 import toast from "react-hot-toast";
-
+import TinChi from "@/components/common/TinChi";
 // Giữ nguyên Row component đã tối ưu ở bước trước
 const Row = memo(({ item, isSelected, onToggle }: any) => {
   return (
@@ -140,7 +140,7 @@ const Scheduled = () => {
         </ScrollArea>
       </div>
       <div className="w-full flex items-center my-2 justify-between text-base px-1">
-        <span>Tổng số tín chỉ: <span className="font-bold">24</span></span>
+        <TinChi /> 
         <span className="font-bold">{tkbArray.length} dòng</span>
       </div>
     </div>

@@ -11,7 +11,7 @@ function isValid(course : TkbDTO , data : any)
     //So TC khong duoc vuot qua 30 
     if (tc + course.SoTc > 30) return {
         success: false, 
-        message: "Ban da vuot so tin chi toi da' "
+        message: "Bạn đã vượt số tín chỉ tối đa"
     }
     //kiem tra xem co mon hoc nao co ma trung khong 
     for (const [key , value] of courses.entries()) 
