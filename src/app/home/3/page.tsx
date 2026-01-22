@@ -1,5 +1,6 @@
 "use client";
 
+import React, { memo, useCallback, useMemo, useState, useEffect, useTransition } from "react";
 import {
   Table,
   TableBody,
@@ -12,113 +13,138 @@ import { Checkbox } from "@/registry/ui/checkbox";
 import { ScrollArea, ScrollBar } from "@/registry/ui/scroll-area";
 import { useTkb } from "@/zus/tkb";
 import { useShallow } from 'zustand/react/shallow'
-import { useEffect } from "react";
 import toast from "react-hot-toast";
+
+// Giữ nguyên Row component đã tối ưu ở bước trước
+const Row = memo(({ item, isSelected, onToggle }: any) => {
+  return (
+    <TableRow>
+      <TableCell className="text-center text-base">
+        <Checkbox 
+          checked={isSelected} 
+          onCheckedChange={(checked) => onToggle(checked, item.MaLop)} 
+        />
+      </TableCell>
+      <TableCell className="border font-medium">{item.TenMH}</TableCell>
+      <TableCell className="border">{item.MaLop}</TableCell>
+      <TableCell className="border">{item.TenGV}</TableCell>
+      <TableCell className="text-center border">{item.Thu}</TableCell>
+      <TableCell className="text-center border">{item.Tiet}</TableCell>
+      <TableCell className="text-center border">{item.SoTc}</TableCell>
+      <TableCell className="border">{item.HeDT}</TableCell>
+      <TableCell className="border">{item.KhoaQL}</TableCell>
+      <TableCell className="border">{item.ThucHanh}</TableCell>
+      <TableCell className="border">{item.CachTuan}</TableCell>
+      <TableCell className="border text-center">{item.SiSo}</TableCell>
+      <TableCell className="border">{item.PhongHoc}</TableCell>
+      <TableCell className="border">{item.KhoaHoc}</TableCell>
+      <TableCell className="border">{item.HocKy}</TableCell>
+      <TableCell className="border">{item.NamHoc}</TableCell>
+      <TableCell className="border">{item.NBD}</TableCell>
+      <TableCell className="border">{item.NKT}</TableCell>
+      <TableCell className="border">{item.GhiChu}</TableCell>
+      <TableCell className="border">{item.NgonNgu}</TableCell>
+    </TableRow>
+  );
+});
+
 const Scheduled = () => {
-  const { tkb, courses , hydrated } = useTkb(
+  const { tkb, coursesDs, hydrated } = useTkb(
     useShallow((state) => ({
       tkb: state.tkbData,
       hydrated: state.hydrate,
-      courses: state.courses
-    })))
-    const choose = useTkb((state) => state.choose) 
-    const unchoose=  useTkb((state) => state.unchoose)
-    const handleCheckBoxChange = (checked: boolean | "indeterminate") => {
-      console.log(checked) 
+      coursesDs: state.courses.ds
+    }))
+  );
+
+  const choose = useTkb((state) => state.choose);
+  const unchoose = useTkb((state) => state.unchoose);
+
+  // Kỹ thuật 1: Trì hoãn render dữ liệu nặng
+  const [isPending, startTransition] = useTransition();
+  const [displayList, setDisplayList] = useState<any[]>([]);
+
+  const tkbArray = useMemo(() => Array.from(tkb.values()), [tkb]);
+
+  useEffect(() => {
+    // Khi mount hoặc tkb thay đổi, đưa việc render mảng lớn vào transition
+    // để nhường Main Thread cho các hiệu ứng chuyển trang/animation
+    startTransition(() => {
+      setDisplayList(tkbArray);
+    });
+  }, [tkbArray]);
+
+  const handleToggle = useCallback((checked: boolean | "indeterminate", maLop: string) => {
+    const toastID = toast.loading(checked ? "Đang chọn lớp..." : "Đang hủy chọn...");
+    const response = checked ? choose(maLop) : unchoose(maLop);
+    if (response.success) {
+      toast.success(response.message, { id: toastID });
+    } else {
+      toast.error(response.message, { id: toastID });
     }
-   return (
-      <div className="w-full h-screen overflow-x-scroll pr-8 flex flex-col pt-8 pb-16">
-         <h2 className="text-3xl font-bold my-5">Danh mục môn học</h2>
-         <div className="w-full min-h-0 flex-1 overflow-x-auto">
-                <>
-      <ScrollArea className="h-full w-full rounded-md border">
-        {/* CONTENT */}
-        <div className="min-w-[1800px]">
-          <Table className="text-lg">
-            <TableHeader className="sticky top-0 bg-muted z-10">
-              <TableRow>
-                <TableHead className="w-10 px-3">
-                     Chọn
-                </TableHead>
-                <TableHead className="border min-w-[160px]">Môn học</TableHead>
-                <TableHead className="border min-w-[120px]">Mã lớp</TableHead>
-                <TableHead className="border min-w-[180px]">Tên giảng viên</TableHead>
-                <TableHead className="border w-16 text-center">Thứ</TableHead>
-                <TableHead className="border w-20 text-center">Tiết</TableHead>
-                <TableHead className="border w-16 text-center">Số TC</TableHead>
-                <TableHead className="border w-22">Hệ ĐT</TableHead>
-                <TableHead className="border w-20">Khoa QL</TableHead>
-                <TableHead className="border w-16">HDTH</TableHead>
-                <TableHead className="border w-24">Cách tuần</TableHead>
-                <TableHead className="border w-16 text-center">Sĩ số</TableHead>
-                <TableHead className="border w-24">Phòng</TableHead>
-                <TableHead className="border w-20">Khóa</TableHead>
-                <TableHead className="border w-20">Học kỳ</TableHead>
-                <TableHead className="border w-24">Năm học</TableHead>
-                <TableHead className="border w-24">NBD</TableHead>
-                <TableHead className="border w-24">NKT</TableHead>
-                <TableHead className="border min-w-[120px]">Ghi chú</TableHead>
-                <TableHead className="border w-24">Ngôn ngữ</TableHead>
-              </TableRow>
-            </TableHeader>
+  }, [choose, unchoose]);
 
-            <TableBody>
-              {hydrated ? Array.from(tkb.values()).map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell className="text-center text-base">
-                    <Checkbox checked={courses.ds.has(item.MaLop)} 
-                      onCheckedChange={(checked) => {
-                        const toastID = toast.loading("Đang chọn lớp...")                    
-                        let response
-                        if (checked) {
-                          response = choose(item.MaLop)
-                        } else {
-                          response = unchoose(item.MaLop)
-                        }
-                      
-                        if (response.success) {
-                          toast.success(response.message, { id: toastID })
-                        } else {
-                          toast.error(response.message, { id: toastID })
-                        }
-                    }} />
-                  </TableCell>
-                  <TableCell className="border font-medium">{item.TenMH}</TableCell>
-                  <TableCell className="border">{item.MaLop}</TableCell>
-                  <TableCell className="border">{item.TenGV}</TableCell>
-                  <TableCell className="text-center border">{item.Thu}</TableCell>
-                  <TableCell className="text-center border">{item.Tiet}</TableCell>
-                  <TableCell className="text-center border">{item.SoTc}</TableCell>
-                  <TableCell className="border">{item.HeDT}</TableCell>
-                  <TableCell className="border">{item.KhoaQL}</TableCell>
-                  <TableCell className="border">{item.ThucHanh}</TableCell>
-                  <TableCell className="border">{item.CachTuan}</TableCell>
-                  <TableCell className="border text-center">{item.SiSo}</TableCell>
-                  <TableCell className="border">{item.PhongHoc}</TableCell>
-                  <TableCell className="border">{item.KhoaHoc}</TableCell>
-                  <TableCell className="border">{item.HocKy}</TableCell>
-                  <TableCell className="border">{item.NamHoc}</TableCell>
-                  <TableCell className="border">{item.NBD}</TableCell>
-                  <TableCell className="border">{item.NKT}</TableCell>
-                  <TableCell className="border">{item.GhiChu}</TableCell>
-                  <TableCell className="border">{item.NgonNgu}</TableCell>
+  return (
+    <div className="w-full h-screen overflow-x-scroll pr-8 flex flex-col pt-8 pb-16">
+      <h2 className="text-3xl font-bold my-5">Danh mục môn học</h2>
+      <div className="w-full min-h-0 flex-1 overflow-x-auto">
+        <ScrollArea className="h-full w-full rounded-md border">
+          <div className="min-w-[1800px]">
+            <Table className="text-lg">
+              <TableHeader className="sticky top-0 bg-muted z-10">
+                <TableRow>
+                   {/* Giữ nguyên các TableHead như cũ */}
+                   <TableHead className="w-10 px-3">Chọn</TableHead>
+                   <TableHead className="border min-w-[160px]">Môn học</TableHead>
+                   <TableHead className="border min-w-[120px]">Mã lớp</TableHead>
+                   <TableHead className="border min-w-[180px]">Tên giảng viên</TableHead>
+                   <TableHead className="border w-16 text-center">Thứ</TableHead>
+                   <TableHead className="border w-20 text-center">Tiết</TableHead>
+                   <TableHead className="border w-16 text-center">Số TC</TableHead>
+                   <TableHead className="border w-22">Hệ ĐT</TableHead>
+                   <TableHead className="border w-20">Khoa QL</TableHead>
+                   <TableHead className="border w-16">HDTH</TableHead>
+                   <TableHead className="border w-24">Cách tuần</TableHead>
+                   <TableHead className="border w-16 text-center">Sĩ số</TableHead>
+                   <TableHead className="border w-24">Phòng</TableHead>
+                   <TableHead className="border w-20">Khóa</TableHead>
+                   <TableHead className="border w-20">Học kỳ</TableHead>
+                   <TableHead className="border w-24">Năm học</TableHead>
+                   <TableHead className="border w-24">NBD</TableHead>
+                   <TableHead className="border w-24">NKT</TableHead>
+                   <TableHead className="border min-w-[120px]">Ghi chú</TableHead>
+                   <TableHead className="border w-24">Ngôn ngữ</TableHead>
                 </TableRow>
-              )) : <></>}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
 
-        {/* SCROLLBARS */}
-        <ScrollBar orientation="horizontal" />
-        <ScrollBar orientation="vertical" />
-      </ScrollArea>
-    </>
-         </div>
-         <div className="w-full flex items-center my-2 justify-between text-base px-1">
-            <span>Tổng số tín chỉ: <span className="font-bold">24</span></span>
-            <span className="font-bold">193 dòng</span>
-         </div>
+              <TableBody>
+                {/* Chỉ render khi đã hydrated và không để trống màn hình quá lâu */}
+                {hydrated && displayList.map((item) => (
+                  <Row 
+                    key={item.MaLop} 
+                    item={item} 
+                    isSelected={coursesDs.has(item.MaLop)} 
+                    onToggle={handleToggle}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+            
+            {/* Kỹ thuật 2: Hiển thị trạng thái loading nhẹ nếu đang render quá nặng */}
+            {isPending && (
+              <div className="p-4 text-center text-muted-foreground">Đang tải danh sách...</div>
+            )}
+          </div>
+          <ScrollBar orientation="horizontal" />
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
       </div>
-   );
+      <div className="w-full flex items-center my-2 justify-between text-base px-1">
+        <span>Tổng số tín chỉ: <span className="font-bold">24</span></span>
+        <span className="font-bold">{tkbArray.length} dòng</span>
+      </div>
+    </div>
+  );
 };
+
 export default Scheduled;
