@@ -1,10 +1,13 @@
 //Lam sao de cho card hien thi dung vao Thu va tiet tren bang Table ?
+'use client'
 import { offset } from "@/helpers/offset";
 import TkbDTO from "@/types/tkbDTO";
 const Card = ({ course }: { course: TkbDTO }) => {
+   if (!course) return null 
    const [left, top, height] = offset(course);
 
    return (
+
       <div
          className="absolute bg-blue-200 border border-blue-300 px-2 z-10 rounded-md flex flex-col items-center justify-center"
          style={{
