@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import Card from "./Card";
 import { useTkb } from "@/zus/tkb";
 import { useShallow } from "zustand/react/shallow";
@@ -49,11 +50,11 @@ function TimeTable() {
                );
             })}
             {/* Tao cac cell ben duoi  */}
-            {PERIODS.map((period, index) => {
+            {PERIODS.map((period, periodIndex) => {
                return (
-                  <>
+                  <React.Fragment key={periodIndex}>
                      <div
-                        key={index * 3 + 1}
+                        key={periodIndex * 3 + 1}
                         className="h-[64px] gap-1 flex border-2 items-center justify-center flex-col text-base bg-neutral-300/80 font-medium"
                      >
                         <p>Tiết {period.tiet}</p>
@@ -61,18 +62,18 @@ function TimeTable() {
                      </div>
                      {Array(6)
                         .fill(0)
-                        .map((item, index) => (
+                        .map((item, timeIndex) => (
                            <div
-                              key={index * 4 + 1}
+                              key={periodIndex - timeIndex}
                               className="bg-neutral-300/80 border-2 h-[64px]"
                            ></div>
                         ))}
-                  </>
+                  </React.Fragment>
                );
             })}
             {/* Cac mon hoc duoc lay o day  */}
             {hydrate ? (
-               (chonTay? Array.from(coursesChonTay.ds.values()) : Array.from(courses.ds.values()))
+               (chonTay && hydrate? Array.from(coursesChonTay.ds.values()) : Array.from(courses.ds.values()))
                .filter((course) => course.Thu != '*').map((course, index) => {
                   return <Card course={course} key={course.MaLop} />;
                })
@@ -81,7 +82,7 @@ function TimeTable() {
             )}
          </div>
             {
-               (chonTay? Array.from(coursesChonTay.ds.values()) : Array.from(courses.ds.values()))
+               (chonTay && hydrate? Array.from(coursesChonTay.ds.values()) : Array.from(courses.ds.values())).filter((course) => course.Thu == '*')
                .map((course, index) => {
                   return <div className="min-w-[1360px] h-40 border border-gray-400 my-1 rounded-md bg-white flex flex-col items-center justify-center">
                      <p className="font-semibold text-center">{course.MaLop} {course.NgonNgu}</p>

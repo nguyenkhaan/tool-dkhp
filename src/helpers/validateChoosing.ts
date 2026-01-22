@@ -45,18 +45,17 @@ function isValid(course : TkbDTO , data : any )
     } 
 }
 //Chon tay 
-function chonTay(tkb : Map<string , TkbDTO> , courses : Map<string , TkbDTO> , maLop : string)   
+function kiemTraChonTay(courses : any , monHocDangKy : TkbDTO)   
 //Danh muc mon hoc, courses: mon hoc da dang ky, maLop dang ky 
 {
-    const dangKy = tkb.get(maLop) 
-    if (!dangKy) return false //Khong co mon hoc 
-    for (const [key , value] of courses.entries()) 
+    if (courses.tc + monHocDangKy.SoTc > 30) return false 
+    for (const [key , value] of courses.ds.entries()) 
     {
-        if (value.MaMH == dangKy.MaMH) return false //Da dang ky mon nay 
-        if (dangKy.Thu == value.Thu)
+        if (value.MaMH == monHocDangKy.MaMH) return false //Da dang ky mon nay 
+        if (monHocDangKy.Thu == value.Thu)
         {
             const tietHoc = String(value.Tiet) 
-            const tietHocDaChon = String(dangKy.Tiet) 
+            const tietHocDaChon = String(monHocDangKy.Tiet) 
             for (let i = 0; i < tietHoc.length; ++i) {
                 for (let j = 0; j < tietHocDaChon.length; ++j) if (tietHoc[i] != '*' && tietHocDaChon[j] != '*' && tietHoc[i] == tietHocDaChon[j]) 
                     return false //Neu nhu bi trung mon hoc 
@@ -66,4 +65,4 @@ function chonTay(tkb : Map<string , TkbDTO> , courses : Map<string , TkbDTO> , m
     return true 
 }
 
-export {isValid , chonTay}
+export {isValid , kiemTraChonTay}

@@ -3,7 +3,7 @@ import TkbDTO from '@/types/tkbDTO'
 import mappingData from '@/helpers/xlsxToJson';
 import * as XLSX from "xlsx";
 import { persist, createJSONStorage } from "zustand/middleware"
-import { chonTay, isValid as isValidChoose } from '@/helpers/validateChoosing';
+import { kiemTraChonTay, isValid as isValidChoose } from '@/helpers/validateChoosing';
 import { selectedCourseType, selectedCourseResponseType } from '@/types/tkbDTO';
 
 //Hook type 
@@ -176,7 +176,7 @@ const useTkb = create<TkbType>()(
                   ds: state.courses.ds instanceof Map ? Array.from(state.courses.ds.entries()) : state.courses.ds,
                   tc: (state.courses.tc)
                },
-               coursesChontay: {
+               coursesChonTay: {
                   ds: state.coursesChonTay instanceof Map ? Array.from(state.coursesChonTay.ds.entries()) : state.coursesChonTay.ds,
                   tc: (state.coursesChonTay.tc)   //Luu vao ben trong local Storage 
                }
