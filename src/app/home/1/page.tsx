@@ -51,7 +51,7 @@ const App = () => {
 
    const buttonText = !isMounted 
       ? "Đang tải..." 
-      : (!fileName ? "Upload an excel file" : `Đã upload ${fileName}`);
+      : (!Tracker.get('filename') ? "Upload an excel file" : `Đã upload ${Tracker.get('filename')}`);
 
    return (
       <div className="w-full h-full pt-8 pr-12">

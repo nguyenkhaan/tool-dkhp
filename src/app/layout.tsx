@@ -22,16 +22,6 @@ export default function RootLayout({
    Tracker.login('tester' , {
       email: '24520059', 
    })
-   const tkb = useTkb((state) => state.tkbData) 
-   const initTkb = useTkb((state) => state.initTkb)
-   useEffect(() => {
-      const savedTkb = Tracker.get('tkb') 
-      if (savedTkb && Array.isArray(savedTkb)) {
-         const restoredMap = new Map(savedTkb); 
-         console.log(restoredMap)
-         initTkb(restoredMap as Map<string , TkbDTO>);
-      } 
-   }, [])
    return (
       <html lang="en">
          <body className="antialiased">

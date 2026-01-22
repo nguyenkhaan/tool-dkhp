@@ -23,4 +23,12 @@ type TkbDTO = {
     GhiChu: any,
     NgonNgu: any,
 } 
+export type selectedCourseType = {
+   ds: Map<string , TkbDTO>, 
+   tc: number, 
+}
+export type selectedCourseResponseType = {
+    success: boolean, 
+    message: string 
+}
 export default TkbDTO

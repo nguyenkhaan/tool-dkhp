@@ -11,8 +11,19 @@ import {
 import { Checkbox } from "@/registry/ui/checkbox";
 import { ScrollArea, ScrollBar } from "@/registry/ui/scroll-area";
 import { useTkb } from "@/zus/tkb";
+import { useShallow } from 'zustand/react/shallow'
+import { useEffect } from "react";
+
 const Scheduled = () => {
-   const tkb = useTkb((state) => state.tkbData);
+  const { tkb, hydrated } = useTkb(
+    useShallow((state) => ({
+      tkb: state.tkbData,
+      hydrated: state.hydrate,
+    })))
+    useEffect(() => {
+      console.log(hydrated)
+    } , [hydrated])
+
    return (
       <div className="w-full h-screen overflow-x-scroll pr-8 flex flex-col pt-8 pb-16">
          <h2 className="text-3xl font-bold my-5">Danh mục môn học</h2>
@@ -50,7 +61,7 @@ const Scheduled = () => {
             </TableHeader>
 
             <TableBody>
-              {tkb? Array.from(tkb.values()).map((item, index) => (
+              {hydrated ? Array.from(tkb.values()).map((item, index) => (
                 <TableRow key={index}>
                   <TableCell className="text-center text-base">
                     <Checkbox />
