@@ -177,7 +177,7 @@ const useTkb = create<TkbType>()(
                   tc: (state.courses.tc)
                },
                coursesChonTay: {
-                  ds: state.coursesChonTay instanceof Map ? Array.from(state.coursesChonTay.ds.entries()) : state.coursesChonTay.ds,
+                  ds: state.coursesChonTay.ds instanceof Map ? Array.from(state.coursesChonTay.ds.entries()) : state.coursesChonTay.ds,
                   tc: (state.coursesChonTay.tc)   //Luu vao ben trong local Storage 
                }
             })),
@@ -188,7 +188,7 @@ const useTkb = create<TkbType>()(
                   //Ban chat la no gan tuong ung truong lai, tuong ung khi khai bao trong partialize, sau do o ham nay no gan lai tuong ung, 
                   //Du lieu duoc JSON.parse() o buoc truoc, o buoc sau thi se chuyen doi KDL sang Map, khong lien quan gi den JSON nua 
                   state.coursesChonTay.ds = new Map(state.coursesChonTay.ds),
-                  state.hydrate = true //Sau khi da hydrate xong du
+                  state.hydrate = true //Tai sao sau khi hydrate xong thi lai khong tro thanh true ???? 
             }
          }
       )

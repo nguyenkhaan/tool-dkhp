@@ -58,7 +58,6 @@ const Scheduled = () => {
       coursesDs: state.courses.ds
     }))
   );
-
   const choose = useTkb((state) => state.choose);
   const unchoose = useTkb((state) => state.unchoose);
 
@@ -85,7 +84,6 @@ const Scheduled = () => {
       toast.error(response.message, { id: toastID });
     }
   }, [choose, unchoose]);
-
   return (
     <div className="w-full h-screen overflow-x-scroll pr-8 flex flex-col pt-8 pb-16">
       <h2 className="text-3xl font-bold my-5">Danh mục môn học</h2>
@@ -121,7 +119,7 @@ const Scheduled = () => {
 
               <TableBody>
                 {/* Chỉ render khi đã hydrated và không để trống màn hình quá lâu */}
-                {hydrated && displayList.map((item) => (
+                {hydrated && Array.from(tkb.values()).map((item) => (
                   <Row 
                     key={item.MaLop} 
                     item={item} 
